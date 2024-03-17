@@ -1,0 +1,100 @@
+- name: Despliegue de la aplicación en Podman y AKS
+  hosts: all
+  become: yes
+  tasks:
+    # Agregar el repositorio de Podman al sistema
+    - name: Agregar repositorio de Podman
+      copy:
+        dest: /etc/apt/sources.list.d/podman.list
+        content: "deb [trusted=yes] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_22.04/ /"
+
+    # Actualizar la caché de apt para reflejar los cambios
+    - name: Actualizar caché de apt
+      apt:
+        update_cache: yes
+
+    # Instalar Podman
+    - name: Instalar Podman
+      apt:
+        name: podman
+        state: present
+
+    - name: Eliminar contenedor existente si existe
+      ansible.builtin.shell: podman rm -f nginx_container
+      ignore_errors: true
+
+    
+    # Descargar la imagen de nginx utilizando Podman
+    - name: Descargar imagen de nginx
+      command: podman pull docker.io/nginx:latest
+      ignore_errors: yes  # Ignorar errores si la imagen ya está descargada
+      register: podman_pull_nginx  # Registrar la salida del comando para su posterior uso
+
+    # Comprobar si la descarga de la imagen fue exitosa
+    - name: Comprobar si la extracción de la imagen fue exitosa
+      fail:
+        msg: "Failed to pull image docker.io/nginx:latest"  # Mensaje a mostrar si falla la descarga
+      when: podman_pull_nginx.failed  # Ejecutar la tarea solo si la descarga falló
+
+    # Renombrar la imagen descargada
+    - name: Renombrar imagen
+      containers.podman.podman_tag:
+        image: docker.io/nginx:latest  # Imagen original
+        target_names:
+          - nginx:casopractico2  # Nuevo nombre para la imagen
+
+    # Subir la imagen renombrada al Registro de Contenedores de Azure (ACR)
+    - name: Subir a ACR
+      containers.podman.podman_image:
+        name: nginx:casopractico2  # Nombre de la imagen
+        push: true  # Subir la imagen al ACR
+        username: "caso2acr"  # Nombre de usuario para autenticarse en el ACR
+        password: "QpMzxga5tSGkQars1HS6koLcngayozRtdULCLXK5Fk+ACRCQs8I0"  # Contraseña para autenticarse en el ACR
+        push_args:
+          dest: caso2acr.azurecr.io  # Destino del ACR donde se subirá la imagen
+
+    - name: Build a Docker formato
+      containers.podman.podman_image:
+         name: nginx
+         path: /patch/to/build/dir
+         build:
+           format: docker
+
+      
+
+    # Descargar la imagen de MongoDB desde Docker Hub
+    - name: Descargar imagen de MongoDB
+      command: podman pull docker.io/mongo:4.4
+      ignore_errors: yes
+      register: podman_pull_mongo
+
+    # Comprobar si la descarga de la imagen de MongoDB fue exitosa
+    - name: Comprobar si la extracción de la imagen de MongoDB fue exitosa
+      fail:
+        msg: "Failed to pull image docker.io/mongo:4.4"
+      when: podman_pull_mongo.failed
+
+    # Renombrar la imagen descargada
+    - name: Renombrar imagen
+      containers.podman.podman_tag:
+        image: docker.io/mongo:4.4
+        target_names:
+        - mongodb:mongodbcaso2
+         
+    # Subir la imagen de MongoDB al ACR
+    - name: Subir imagen de MongoDB a ACR
+      containers.podman.podman_image:
+        name: mongodb:mongodbcaso2
+        push: true
+        username: "caso2acr"
+        password: "QpMzxga5tSGkQars1HS6koLcngayozRtdULCLXK5Fk+ACRCQs8I0"
+        push_args:
+          dest: caso2acr.azurecr.io
+
+    - name: Iniciar el contenedor Nginx
+      ansible.builtin.shell: podman run -d --name nginx_container -p 8080:80 nginx:casopractico2
+    
+    - name: Iniciar el contenedor mongodb
+      ansible.builtin.shell: podman run -d --name mongodb_container -p 27017:27017 mongodb:mongodbcaso2
+
+   

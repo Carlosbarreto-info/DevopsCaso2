@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-mongodb-Jenkins
+spec:
+  containers:
+  - name: nginx-container
+    image: caso2acr.azurecr.io/nginx:casopractico2
+    ports:
+    - containerPort: 8080
+  - name: mongodb-container
+    image: caso2acr.azurecr.io/mongodb:casopractico2
+    ports:
+    - containerPort: 27017
+  - name: Jenkins-container
+    image: caso2acr.azurecr.io/jenkins:casopractico2

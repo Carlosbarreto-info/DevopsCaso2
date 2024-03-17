@@ -26,6 +26,12 @@ Caso2 Devops Unir
 
 
 
+
+
+
+
+
+
 Este código de Terraform esta diseñado para crear una infraestructura en Azure que incluye una red virtual, subredes, máquinas virtuales, grupos de seguridad de red, un registro de contenedor de Azure (ACR) y un servicio de Kubernetes de Azure (AKS). Aquí hay un resumen de lo que hace cada recurso:
 
 Proveedor de Azure: Declara el proveedor de Azure y especifica la versión mínima requerida.

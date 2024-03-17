@@ -1,27 +1,7 @@
 # DevopsCaso2
 Caso2 Devops Unir
 
-
-                  +--------------------------------------------------------+
-                  |                    Microsoft Azure                       |
-                  +--------------------------------------------------------+
-                                           |
-                   +-----------------------+------------------------+
-                   |                       |                        |
-          Azure Container          Máquina Virtual con Podman    Azure Kubernetes
-              Registry                                           Service (AKS)
-                   |                       |                        |
-      +------------+-------------+         |          +-------------+--------------+
-      |            |             |         |          |            |              |
-  Repositorio   Contenedor     Servicio    |   Nodo de      Cluster AKS   Aplicación en
-  de Imágenes   con Podman     Web         |   Máquina                        Kubernetes
-  (ACR)                           (Apache) |   Virtual                     (MongoDB)
-                                           |
-                                +----------+-----------+
-                                |                      |
-                             Almacenamiento         Almacenamiento
-                             Persistente (VM)       Persistente (AKS)
-
+![image](https://github.com/Carlosbarreto-info/DevopsCaso2/assets/66956177/753574ba-5702-44b2-8907-54295f6b7c01)
 
 
 
